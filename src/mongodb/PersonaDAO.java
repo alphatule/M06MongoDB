@@ -2,7 +2,10 @@ package mongodb;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,24 @@ public class PersonaDAO {
         return collection.find().into(new ArrayList<>());
     }
 
+    public List<Document> listarNotasDePersona(String nombre) {
+        Document persona = buscarPersona(nombre);
+        if (persona == null) {
+            System.out.println("Persona no encontrada.");
+            return new ArrayList<>();
+        }
+
+        List<String> idsNotas = new ArrayList<>();
+        idsNotas.addAll((List<String>) persona.get("notasPropias"));
+        idsNotas.addAll((List<String>) persona.get("notasCompartidas"));
+
+        return MongoDBConnection.getDatabase()
+                .getCollection("Notas")
+                .find(new Document("_id", new Document("$in", idsNotas)))
+                .into(new ArrayList<>());
+    }
+
+
     // Agregar nota a una persona
     public void agregarNotaAPropietario(String nombre, String notaId) {
         collection.updateOne(new Document("nombre", nombre),
@@ -43,7 +64,37 @@ public class PersonaDAO {
 
     // Compartir nota con otra persona
     public void compartirNota(String nombre, String notaId) {
+        Document persona = buscarPersona(nombre);
+        if (persona == null) {
+            System.out.println("Error: Persona no encontrada.");
+            return;
+        }
+
+        Document nota = MongoDBConnection.getDatabase()
+                .getCollection("Notas")
+                .find(new Document("_id", new ObjectId(notaId)))
+                .first();
+
+        if (nota == null) {
+            System.out.println("Error: Nota no encontrada.");
+            return;
+        }
+
+        List<String> notasCompartidas = persona.getList("notasCompartidas", String.class);
+        if (notasCompartidas != null && notasCompartidas.contains(notaId)) {
+            System.out.println("Esta nota ya ha sido compartida con esta persona.");
+            return;
+        }
+
         collection.updateOne(new Document("nombre", nombre),
                 new Document("$push", new Document("notasCompartidas", notaId)));
+
+        MongoDBConnection.getDatabase()
+                .getCollection("Notas")
+                .updateOne(new Document("_id", new ObjectId(notaId)),
+                        new Document("$push", new Document("compartidoCon", nombre)));
+
+        System.out.println("Nota compartida con éxito.");
     }
+
 }

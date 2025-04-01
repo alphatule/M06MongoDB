@@ -19,7 +19,12 @@ public class MainApp {
             System.out.println("3. Buscar Nota");
             System.out.println("4. Listar Notas");
             System.out.println("5. Marcar Nota como Completada");
-            System.out.println("6. Salir");
+            System.out.println("6. Compartir Nota");
+            System.out.println("7. Listar Notas de una Persona");
+            System.out.println("8. Buscar Nota por Contenido");
+            System.out.println("10. Eliminar Nota");
+            System.out.println("10. Salir");
+
             System.out.print("Elige una opción: ");
             opcion = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
@@ -74,6 +79,36 @@ public class MainApp {
                     System.out.println("Nota marcada como completada.");
                     break;
                 case 6:
+                    System.out.print("Nombre de la persona con quien compartir: ");
+                    String personaCompartir = scanner.nextLine();
+                    System.out.print("ID de la nota a compartir: ");
+                    String notaCompartirId = scanner.nextLine();
+                    personaDAO.compartirNota(personaCompartir, notaCompartirId);
+                    notaDAO.compartirNotaConPersona(notaCompartirId, personaCompartir);
+                    System.out.println("Nota compartida con éxito.");
+                    break;
+                case 7:
+                    System.out.print("Nombre de la persona: ");
+                    String nombrePersona = scanner.nextLine();
+                    List<Document> notasPersona = personaDAO.listarNotasDePersona(nombrePersona);
+                    for (Document doc : notasPersona) {
+                        System.out.println(doc.toJson());
+                    }
+                    break;
+                case 8:
+                    System.out.print("Introduce palabra clave: ");
+                    String keyword = scanner.nextLine();
+                    List<Document> notasEncontradas = notaDAO.buscarNotasPorContenido(keyword);
+                    for (Document n : notasEncontradas) {
+                        System.out.println(n.toJson());
+                    }
+                    break;
+                case 10:
+                    System.out.print("ID de la nota a eliminar: ");
+                    String idEliminar = scanner.nextLine();
+                    notaDAO.eliminarNota(idEliminar);
+                    break;
+                case 11:
                     MongoDBConnection.closeConnection();
                     System.out.println("Conexión cerrada. ¡Hasta luego!");
                     break;

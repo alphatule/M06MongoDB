@@ -2,7 +2,9 @@ package mongodb;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,4 +48,37 @@ public class NotaDAO {
         collection.updateOne(new Document("titulo", titulo),
                 new Document("$set", new Document("estado", "completada")));
     }
+
+    public void compartirNotaConPersona(String notaId, String nombrePersona) {
+        collection.updateOne(new Document("_id", new org.bson.types.ObjectId(notaId)),
+                new Document("$push", new Document("compartidoCon", nombrePersona)));
+    }
+
+    public List<Document> buscarNotasPorContenido(String palabraClave) {
+        return MongoDBConnection.getDatabase()
+                .getCollection("Notas")
+                .find(Filters.regex("contenido", ".*" + palabraClave + ".*", "i"))
+                .into(new ArrayList<>());
+    }
+
+    public void eliminarNota(String notaId) {
+        MongoDBConnection.getDatabase()
+                .getCollection("Notas")
+                .deleteOne(new Document("_id", new ObjectId(notaId)));
+
+        MongoDBConnection.getDatabase()
+                .getCollection("Personas")
+                .updateMany(new Document(),
+                        new Document("$pull", new Document("notasPropias", notaId)));
+
+        MongoDBConnection.getDatabase()
+                .getCollection("Personas")
+                .updateMany(new Document(),
+                        new Document("$pull", new Document("notasCompartidas", notaId)));
+
+        System.out.println("Nota eliminada correctamente.");
+    }
+
+
+
 }
