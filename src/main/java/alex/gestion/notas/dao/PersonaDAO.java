@@ -1,4 +1,4 @@
-package mongodb;
+package alex.gestion.notas.dao;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;

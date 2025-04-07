@@ -1,5 +1,6 @@
-package mongodb;
+package alex.gestion.notas.dao;
 
+import alex.gestion.notas.db.MongoDBConnection;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;

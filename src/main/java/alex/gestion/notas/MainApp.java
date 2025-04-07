@@ -1,5 +1,8 @@
-package mongodb;
+package alex.gestion.notas;
 
+import alex.gestion.notas.dao.NotaDAO;
+import alex.gestion.notas.dao.PersonaDAO;
+import alex.gestion.notas.db.MongoDBConnection;
 import org.bson.Document;
 import java.util.Arrays;
 import java.util.List;
