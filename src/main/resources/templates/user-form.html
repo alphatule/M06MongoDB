@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="fragments/layout :: layout">
+<section>
+    <h2 th:text="${user.id == null} ? 'Nuevo Usuario' : 'Editar Usuario'"></h2>
+    <form th:action="@{/users/save}" th:object="${user}" method="post">
+        <input type="hidden" th:field="*{id}">
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" th:field="*{name}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" th:field="*{email}" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success">Guardar</button>
+    </form>
+</section>
+</html>
